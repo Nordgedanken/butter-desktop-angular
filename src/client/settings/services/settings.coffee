@@ -104,7 +104,7 @@ angular.module 'app.settings'
   vpnPassword: ''
 
   vodoAPI:
-    url: 'http://vodo.net/popcorn'
+    url: 'http://butter.vodo.net/popcorn'
 
   tvshowAPI:
     url: 'http://eztvapi.re/'

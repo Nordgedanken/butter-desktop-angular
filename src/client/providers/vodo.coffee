@@ -88,7 +88,7 @@ angular.module 'app.providers'
       url: AdvSettings.get('vodoAPI').url
       params: params
       cache: timeoutCache 10 * 60 * 1000
-    .success (data) ->
+    .then (data) ->
       if !data or data.error and data?.error != 'No movies found'
         err = if data then data.error else 'No data returned'
         $log.error 'API error:', err

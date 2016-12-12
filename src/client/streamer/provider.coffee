@@ -11,7 +11,7 @@ angular.module 'app.streamer', []
       @connection = socketServer.connection
 
       @connection.on torrent.infoHash, (event, data) =>
-        switch event 
+        switch event
           when 'verifying' then @ready = false
           when 'ready' then angular.extend @, data; @$ready.resolve()
           when 'interested' then @interested = true
@@ -31,23 +31,23 @@ angular.module 'app.streamer', []
 .factory 'torrentProvider', ($http, $q, torrentResource, serverPort) ->
   data = {}
 
-  getAllTorrents: -> 
+  getAllTorrents: ->
     $http.get "http://127.0.0.1:#{serverPort}/torrents/"
-      .success (torrents) ->
+      .then (torrents) ->
         for index, torrent of torrents
           data[index] = new torrentResource torrent
 
   getTorrent: (hash) ->
     torrent = data[hash]
-    
+
     if torrent
       $q.when torrent
-    else 
+    else
       data[hash] = new torrentResource infoHash: hash
       $q.when data[hash]
 
   addTorrentLink: (link) ->
     if link
       $http.post "http://127.0.0.1:#{serverPort}/torrents/", link: link
-        .success (resp) -> data[resp.infoHash] = new torrentResource resp
+        .then (resp) -> data[resp.infoHash] = new torrentResource resp
     else $q.reject()

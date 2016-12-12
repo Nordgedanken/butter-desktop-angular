@@ -6,15 +6,15 @@ angular.module 'app.webchimera'
 
   @loadConfig = (url) ->
     deferred = $q.defer()
-    
+
     $http.get url
       method: 'GET'
       url: url
-    .success (response) ->
+    .then (response) ->
       result = response.data
       i = 0
       l = result.sources.length
-      
+
       while i < l
         result.sources[i].src = $sce.trustAsResourceUrl result.sources[i].src
         i++

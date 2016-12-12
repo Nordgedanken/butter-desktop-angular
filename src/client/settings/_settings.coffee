@@ -24,7 +24,7 @@ angular.module 'app.settings', []
     ratio
 
   vm.load = ->
-    $http.get('/containers/settings/settings').success (data) ->
+    $http.get('/containers/settings/settings').then (data) ->
       vm.settings = data
 
   vm.start_screens = ["Movies", "TV Series", "Anime"]

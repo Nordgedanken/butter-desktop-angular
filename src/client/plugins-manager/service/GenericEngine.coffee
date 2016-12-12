@@ -13,7 +13,7 @@ angular.module 'app.plugins'
       executeSearch: (query, timeout) ->
         if !timeout
           timeout = $q.defer()
-        
+
         $http
           method: 'GET'
           url: getUrl @config, 'search', query: query
@@ -23,12 +23,12 @@ angular.module 'app.plugins'
       search: (query, noCancel) ->
         query = query.replace /\'/g, ''
         d = $q.defer()
-        
+
         if noCancel != true and activeRequest
           activeRequest.resolve()
-        
+
         activeRequest = $q.defer()
-        
+
         @executeSearch query, activeRequest
           .then (response) ->
             d.resolve parseSearch @config, response
@@ -44,7 +44,7 @@ angular.module 'app.plugins'
           method: 'GET'
           url: getUrl @config, 'details', id: id
           cache: true
-        .success (response) ->
+        .then (response) ->
           result: @parseDetails response
 
       return

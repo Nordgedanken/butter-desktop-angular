@@ -19,7 +19,7 @@ angular.module 'app.providers'
   api = (method, endpoint, params) ->
     defer = $$q.defer()
 
-    $http 
+    $http
       method: method
       url: API_ENDPOINT + endpoint
       params: params
@@ -27,13 +27,13 @@ angular.module 'app.providers'
         'Authorization': 'Bearer ' + Settings.traktToken
         'trakt-api-version': '2'
         'trakt-api-key': CLIENT_ID
-    .success (data) ->
+    .then (data) ->
       if not data
         defer.reject error
       else defer.resolve data
     .error (err) ->
       defer.reject err
-      
+
     defer.promise
 
   get: (endpoint, getVariables) ->
@@ -42,13 +42,13 @@ angular.module 'app.providers'
   post: (endpoint, postVariables) ->
     api 'POST', endpoint, postVariables
 
-  calendars: 
+  calendars:
     myShows: (startDate, days) ->
       endpoint = 'calendars/my/shows'
-      
+
       if startDate and days
         endpoint += '/' + startDate + '/' + days
-      
+
       @get(endpoint).then (item) ->
         calendar = []
 
@@ -62,7 +62,7 @@ angular.module 'app.providers'
             episode: item[i].episode.number
 
         calendar
-  
+
   movies:
     summary: (id) ->
       @get 'movies/' + id, extended: 'full,images'
@@ -76,11 +76,11 @@ angular.module 'app.providers'
       @get 'movies/' + id + '/comments'
     related: (id) ->
       @get 'movies/' + id + '/related'
-  
+
   recommendations:
-    movies: -> 
+    movies: ->
       @get('recommendations/movies')
-    shows: -> 
+    shows: ->
       @get('recommendations/shows')
 
   scrobble: (action, type, id, progress) ->
@@ -88,12 +88,12 @@ angular.module 'app.providers'
       return @post('scrobble/' + action,
         movie: ids: imdb: id
         progress: progress)
-    
+
     if type == 'episode'
       return @post('scrobble/' + action,
         episode: ids: tvdb: id
         progress: progress)
-    
+
     return
 
   search: (query, type, year) ->
@@ -105,46 +105,46 @@ angular.module 'app.providers'
   shows:
     summary: (id) ->
       @get 'shows/' + id, extended: 'full,images'
-    
+
     people: (id) ->
       @get 'shows/' + id + '/people', extended: 'images'
-    
+
     aliases: (id) ->
       @get 'shows/' + id + '/aliases'
-    
+
     translations: (id, lang) ->
       @get 'shows/' + id + '/translations/' + lang
-    
+
     comments: (id) ->
       @get 'shows/' + id + '/comments'
-    
+
     watchedProgress: (id) ->
       if !id
         return $$q.reject()
-      
+
       @get('shows/' + id + '/progress/watched')
-    
+
     updates: (startDate) ->
       @get('shows/updates/' + startDate)
-    
+
     related: (id) ->
       @get 'shows/' + id + '/related'
-  
-  episodes: 
+
+  episodes:
     summary: (id, season, episode) ->
       @get 'shows/' + id + '/seasons/' + season + '/episodes/' + episode, extended: 'full,images'
-    
-  seasons: 
+
+  seasons:
     summary: (id) ->
       @get 'shows/' + id + '/seasons', extended: 'images'
-    
+
   sync:
     lastActivities: ->
       @get('sync/last_activities')
-    
+
     playback: (type, id) ->
       defer = $$q.defer()
-      
+
       if type == 'movie'
         @get('sync/playback/movies', limit: 50).then((results) ->
           results.forEach (result) ->
@@ -162,21 +162,21 @@ angular.module 'app.providers'
           defer.reject err
 
       defer.promise
-    
+
     getWatched: (type) ->
         @get('sync/watched/' + type)
-    
+
     addToHistory: (type, id) ->
       if type == 'movie'
         return @post('sync/history', movies: [ { ids: imdb: id } ])
-      
+
       if type == 'episode'
         return @post('sync/history', episodes: [ { ids: tvdb: id } ])
-    
+
     removeFromHistory: (type, id) ->
       if type == 'movie'
         return @post('sync/history/remove', movies: [ { ids: imdb: id } ])
-      
+
       if type == 'episode'
         return @post('sync/history/remove', episodes: [ { ids: tvdb: id } ])
 
@@ -195,14 +195,14 @@ angular.module 'app.providers'
           client_secret: CLIENT_SECRET
           redirect_uri: REDIRECT_URI
           grant_type: 'authorization_code').then (data) ->
-          
+
           if data.access_token and data.expires_in and data.refresh_token
             Settings.traktToken = data.access_token
-            
+
             AdvSettings.set 'traktToken', data.access_token
             AdvSettings.set 'traktTokenRefresh', data.refresh_token
             AdvSettings.set 'traktTokenTTL', (new Date).valueOf() + data.expires_in * 1000
-            
+
             self.authenticated = true
 
             defer.resolve true
@@ -216,10 +216,10 @@ angular.module 'app.providers'
         defer.reject err
 
       defer.promise
-    
+
     #authorize: ->
     #  defer = $q.defer()
-    #  
+    #
     #  url = false
     #  API_URI = 'http://trakt.tv'
     #  OAUTH_URI = API_URI + '/oauth/authorize?response_type=code&client_id=' + CLIENT_ID
@@ -234,10 +234,10 @@ angular.module 'app.providers'
     #    show_in_taskbar: false
     #    width: 600
     #    height: 600)
-    #  
+    #
     #  window.loginWindow.on 'loaded', ->
     #    url = window.loginWindow.window.document.URL
-    #    
+    #
     #    if url.indexOf('&') == -1 and url.indexOf('auth/signin') == -1
     #      if url.indexOf('oauth/authorize/') != -1
     #        url = url.split('/')
@@ -248,7 +248,7 @@ angular.module 'app.providers'
     #    else
     #      url = false
     #    return
-    #  
+    #
     #  window.loginWindow.on 'closed', ->
     #    if url
     #      defer.resolve url
@@ -290,14 +290,14 @@ angular.module 'app.providers'
   syncTrakt:
     isSyncing: ->
       @syncing and @syncing.isPending()
-    
+
     all: ->
       AdvSettings.set 'traktLastSync', (new Date).valueOf()
       @syncing = $q.all([
         self.syncTrakt.movies()
         self.syncTrakt.shows()
       ])
-    
+
     movies: ->
       @sync.getWatched('movies').then((data) ->
         watched = []
@@ -315,7 +315,7 @@ angular.module 'app.providers'
       ).then (traktWatched) ->
         $log.debug 'Trakt: marked %s movie(s) as watched', traktWatched.length
         true
-    
+
     shows: ->
       @sync.getWatched('shows').then((data) ->
         # Format them for insertion
@@ -330,7 +330,7 @@ angular.module 'app.providers'
               try
                 #some shows don't return IMDB
                 for e of season.episodes
-                  value = 
+                  value =
                     tvdb_id: show.show.ids.tvdb.toString()
                     imdb_id: show.show.ids.imdb.toString()
                     season: season.number.toString()
@@ -348,12 +348,12 @@ angular.module 'app.providers'
   resizeImage: (imageUrl, size) ->
     if imageUrl == undefined
       return imageUrl
-    
+
     uri = URI(imageUrl)
     ext = uri.suffix()
-    
+
     file = uri.filename().split('.' + ext)[0]
-    
+
     # Don't resize images that don't come from trakt
     #  eg. YTS Movie Covers
     if imageUrl.indexOf('placeholders/original/fanart') != -1
@@ -362,15 +362,15 @@ angular.module 'app.providers'
       return 'images/posterholder.png'.toString()
     else if uri.domain() != 'trakt.us'
       return imageUrl
-    
+
     existingIndex = 0
-    
+
     if (existingIndex = file.search('-\\d\\d\\d$')) != -1
       file = file.slice(0, existingIndex)
-    
+
     # reset
     uri.pathname uri.pathname().toString().replace(/thumb|medium/, 'original')
-    
+
     if !size
       if ScreenResolution.SD or ScreenResolution.HD
         uri.pathname uri.pathname().toString().replace(/original/, 'thumb')
@@ -393,4 +393,3 @@ angular.module 'app.providers'
       'images/posterholder.png'.toString()
     else
       uri.filename(file + '.' + ext).toString()
-
